@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  web:
+    image: aungkhantmin21/weather-dashboard-client:dev1.0
+    ports:
+      - "5173:5173"
+    environment:
+      - NODE_ENV=development
+    restart: unless-stopped
+    volumes:
+      - /app/node_modules
+      - ./web:/app
+  redis:
+    image: redis:8.4.2-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass DRKURFacItkpoFNuS7OMPg==
+    restart: unless-stopped
+  server:
+    image: aungkhantmin21/weather-dashboard-server:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=DRKURFacItkpoFNuS7OMPg==
+      - NODE_ENV=development
+    restart: unless-stopped
+    volumes:
+      - /app/node_modules
+      - ./server:/app
