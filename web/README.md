@@ -96,21 +96,33 @@ Creates a `dist/` folder with static files that can be served by any web server 
 
 ---
 
-## Configuration
+## API Response Format
 
-**Vite Proxy (optional):** To avoid CORS during development, add to `vite.config.js`:
+**Weather endpoint:** `GET http://localhost:3000/weather/:city`
 
-```javascript
-export default {
-  server: {
-    proxy: {
-      '/weather': 'http://localhost:3000'
-    }
+```json
+{
+  "success": true,
+  "data": {
+    "city": "Yangon",
+    "latitude": 16.8661,
+    "longitude": 96.1951,
+    "current": {
+      "temperature": 32.5,
+      "windspeed": 8.2,
+      "winddirection": 180,
+      "weathercode": 1,
+      "time": "2024-01-15T14:00"
+    },
+    "daily": {
+      "maxTemps": [33, 34, 32, ...],
+      "minTemps": [24, 25, 23, ...],
+      "dates": ["2024-01-15", ...]
+    },
+    "cachedAt": "2024-01-15T14:05:00Z"
   }
 }
 ```
-
-Then update `API_URL` in `App.jsx` to use relative paths.
 
 ---
 

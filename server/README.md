@@ -1,22 +1,22 @@
 # Weather Dashboard API
 
-Node.js Express application that fetches weather data from Open-Meteo public API, caches results in Redis, and serves a minimal web frontend.
+Node.js Express API that fetches weather data from Open-Meteo public API and caches results in Redis. This is a backend-only service - the frontend is in the separate `web/` folder.
 
 ---
 
 ## Architecture Overview
 
 ```
-┌─────────────────┐     ┌──────────────┐     ┌─────────────────┐
-│   Web Client    │────▶│ Express API  │────▶│  Open-Meteo API │
-│  (public/)      │     │   (Node.js)  │     │  (External)     │
-└─────────────────┘     └──────┬───────┘     └─────────────────┘
-                               │
-                               ▼
-                        ┌──────────────┐
-                        │    Redis     │
-                        │   (Cache)    │
-                        └──────────────┘
+┌─────────────┐     ┌──────────────┐     ┌─────────────────┐
+│   Frontend  │────▶│ Express API  │────▶│  Open-Meteo API │
+│  (web/)     │     │   (Node.js)  │     │  (External)     │
+└─────────────┘     └──────┬───────┘     └─────────────────┘
+                           │
+                           ▼
+                    ┌──────────────┐
+                    │    Redis     │
+                    │   (Cache)    │
+                    └──────────────┘
 ```
 
 ---
@@ -28,7 +28,7 @@ Node.js Express application that fetches weather data from Open-Meteo public API
 | Runtime | Node.js 18+ | JavaScript runtime |
 | Framework | Express 4.x | HTTP server & routing |
 | Cache | Redis 6+ | In-memory data store for API response caching |
-| Frontend | Vanilla JS + CSS | Single-page dashboard |
+| CORS | cors | Cross-origin requests from frontend |
 | External API | Open-Meteo | Free weather data (no API key required) |
 
 ---
@@ -36,21 +36,19 @@ Node.js Express application that fetches weather data from Open-Meteo public API
 ## Project Structure
 
 ```
-src/
+server/
 ├── server.js              # Application entry point
 ├── package.json           # Dependencies & scripts
 ├── .env.example           # Environment variables template
+├── .env                   # Environment variables (gitignored)
+├── Dockerfile             # Container configuration
 ├── config/
 │   └── redis.js           # Redis client singleton
 ├── services/
 │   └── weatherService.js  # Business logic, API calls, caching
-├── routes/
-│   ├── index.js           # Route aggregator
-│   └── weather.js         # Weather endpoints
-└── public/                # Static frontend assets
-    ├── index.html         # Main page
-    ├── style.css          # Stylesheet
-    └── app.js             # Frontend JavaScript
+└── routes/
+    ├── index.js           # Route aggregator
+    └── weather.js         # Weather endpoints
 ```
 
 ---
@@ -60,8 +58,8 @@ src/
 ### 1. Entry Point (`server.js`)
 - Initializes Express application
 - Loads environment variables via `dotenv`
+- Enables CORS for frontend communication
 - Connects to Redis (required for startup)
-- Serves static files from `public/`
 - Mounts API routes
 - Handles graceful shutdown on SIGTERM
 
@@ -90,39 +88,6 @@ src/
 | `/weather/cities` | GET | List all supported cities with coordinates |
 | `/weather/:city` | GET | Get weather for city (cached or fresh) |
 | `/weather/cache/:city` | DELETE | Manually invalidate cache for city |
-
-**Success Response Format (GET /weather/:city):**
-```json
-{
-  "success": true,
-  "data": {
-    "city": "Yangon",
-    "latitude": 16.8661,
-    "longitude": 96.1951,
-    "current": {
-      "temperature": 32.5,
-      "windspeed": 8.2,
-      "winddirection": 180,
-      "weathercode": 1,
-      "time": "2024-01-15T14:00"
-    },
-    "daily": {
-      "maxTemps": [33, 34, 32, ...],
-      "minTemps": [24, 25, 23, ...],
-      "dates": ["2024-01-15", ...]
-    },
-    "cachedAt": "2024-01-15T14:05:00Z"
-  }
-}
-```
-
-### 5. Frontend (`public/`)
-- Single-page application
-- Fetches city list on load
-- Dropdown to select city
-- Displays: current temp, condition, wind info, 7-day forecast
-- Shows data source (Redis Cache vs API)
-- Manual cache clear button
 
 ---
 
@@ -173,9 +138,9 @@ npm start
 ```
 
 **Access:**
-- API: http://localhost:3000
-- Frontend: http://localhost:3000 (serves index.html)
+- API Base: http://localhost:3000
 - Health check: http://localhost:3000/health
+- Example endpoint: http://localhost:3000/weather/yangon
 
 ---
 
@@ -263,7 +228,6 @@ redis-cli MONITOR
 |---------|------|---------|
 | App Container | Node.js | Express API server |
 | Redis | Cache | Data caching layer |
-| Static Files | Nginx/CDN | Optional: serve `public/` separately |
 
 ### Environment Configuration per Environment
 
@@ -282,7 +246,7 @@ redis-cli MONITOR
 - No authentication on API (public weather data)
 - Redis password should be used in production
 - Rate limiting recommended for production (prevent abuse)
-- CORS headers may be needed if frontend served from different domain
+- CORS is enabled for local development; configure `cors` options for production
 
 ### Scaling Notes
 
