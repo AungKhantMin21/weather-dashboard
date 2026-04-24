@@ -10,7 +10,10 @@ RUN npm run build
 FROM nginx:stable-alpine
 # Copy built assets from build stage to Nginx web root
 COPY --from=build /app/dist /usr/share/nginx/html
+# Copy entrypoint script for runtime config
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 # (Optional) Copy custom nginx config if needed
 # COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/entrypoint.sh"]
