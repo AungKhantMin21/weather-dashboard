@@ -2,9 +2,9 @@ version: "3.8"
 
 services:
   web:
-    image: aungkhantmin21/weather-dashboard-client:dev1.0
+    image: aungkhantmin21/weather-dashboard-client:latest
     ports:
-      - "5173:5173"
+      - "80:80"
     environment:
       - NODE_ENV=development
     restart: unless-stopped
