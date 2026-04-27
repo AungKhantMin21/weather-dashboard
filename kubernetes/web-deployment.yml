@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web
-        image: aungkhantmin21/weather-dashboard-client:latest
+        image: aungkhantmin21/weather-dashboard-client:v1.0.1
         ports:
         - containerPort: 80
         env:
