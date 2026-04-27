@@ -3,11 +3,11 @@ kind: Ingress
 metadata:
   name: weather-ingress
   annotations:
-    kubernetes.io/ingress.class: traefik
     traefik.ingress.kubernetes.io/router.middlewares: default-strip-api@kubernetescrd
 spec:
+  ingressClassName: traefik
   rules:
-    - host: weather.local
+    - host: ec2-47-129-191-202.ap-southeast-1.compute.amazonaws.com
       http:
         paths:
           - path: /api
