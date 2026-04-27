@@ -1,0 +1,28 @@
+name: Source Code Integration
+
+on:
+  push:
+    branches:
+      - main
+  
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Git Pull in EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/weather-dashboard
+            git fetch --all
+            git checkout main
+            git pull origin main
+
+            kubectl apply -R -f ./kubernetes/
+          
