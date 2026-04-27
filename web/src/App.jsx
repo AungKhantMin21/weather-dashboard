@@ -79,7 +79,7 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Weather Dashboard V2</h1>
+      <h1>Weather Dashboard V2.1.1</h1>
 
       <div className="city-selector">
         <label htmlFor="city">Select a city:</label>
