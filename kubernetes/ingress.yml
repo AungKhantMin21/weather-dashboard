@@ -3,7 +3,8 @@ kind: Ingress
 metadata:
   name: weather-ingress
   annotations:
-    kubernetes.io/ingress.class: traefik 
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/rewrite-target: / 
 spec:
   rules:
     - host: ec2-47-129-191-202.ap-southeast-1.compute.amazonaws.com
